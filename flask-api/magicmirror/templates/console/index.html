@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Networks{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('console.create_network') }}">New</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% for network in networks %}
+    <article class="post">
+      <header>
+        <div>
+          <h1>{{ network['name'] }}</h1>
+          <div class="about">Owned by {{ network['owner'] }}</div>
+        </div>
+        {% if g.user['id'] == network['owner'] %}
+          <a class="action" href="{{ url_for('console.update_network', network_id=network['id']) }}">Edit</a>
+        {% endif %}
+      </header>
+    </article>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
