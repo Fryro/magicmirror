@@ -5,7 +5,7 @@
   <h1>Magic Mirror</h1>
   <ul>
     {% if g.user %}
-      <li><span>{{ g.user['username'] }}</span>
+    <li><span>Logged in as {{ g.user['username'] }} (UserID: {{  g.user['id'] }})</span>
       <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
     {% else %}
       <li><a href="{{ url_for('auth.register') }}">Register</a>

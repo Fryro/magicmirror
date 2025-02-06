@@ -21,6 +21,7 @@ CREATE TABLE Network (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     owner INTEGER NOT NULL,
+    owner_name TEXT NOT NULL,
     FOREIGN KEY (owner) REFERENCES User (id)
 );
 

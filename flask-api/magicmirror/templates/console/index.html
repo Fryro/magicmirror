@@ -13,8 +13,11 @@
       <header>
         <div>
           <h1>{{ network['name'] }}</h1>
-          <div class="about">Owned by {{ network['owner'] }}</div>
+          <div class="about">Owned by {{ network['owner_name'] }} (UserID: {{ network['owner'] }})</div>
         </div>
+        {% if g.user['id'] == network['owner'] %}
+          <a class="action" href="{{ url_for('console.invite_to_network', network_id=network['id']) }}">Invite Users</a>
+        {% endif %}
         {% if g.user['id'] == network['owner'] %}
           <a class="action" href="{{ url_for('console.update_network', network_id=network['id']) }}">Edit</a>
         {% endif %}

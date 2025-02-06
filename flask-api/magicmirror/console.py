@@ -44,9 +44,9 @@ def create_network():
         else:
             db = get_db()
             db.execute(
-                'INSERT INTO Network (name, owner)'
-                ' VALUES (?, ?)',
-                (name, g.user['id'])
+                'INSERT INTO Network (name, owner_name, owner)'
+                ' VALUES (?, ?, ?)',
+                (name, g.user['username'], g.user['id'])
             )
             network_id = db.execute(
                 'SELECT last_insert_rowid()'
@@ -79,6 +79,38 @@ def get_network(network_id, check_owner=True):
     return network
 
 
+@bp.route('/<int:network_id>/invite_to_network', methods=('GET', 'POST'))
+@login_required
+def invite_to_network(network_id):
+    network = get_network(network_id)
+
+    if (request.method == 'POST'):
+        invitee = request.form['invitee']
+        error = None
+
+        if (not invitee):
+            error = 'Invitee username is required.'
+
+        if (error is not None):
+            flash(error)
+        else:
+            db = get_db()
+            
+            user = db.execute(
+                'SELECT * FROM User WHERE id = ?', (invitee,)
+            ).fetchone()
+            
+            print(user)
+            # Invite the User, somehow...
+            # First, check if the user is already a member of the network.
+
+            return redirect(url_for('console.index'))
+
+    return render_template('console/invite_to_network.html', network=network)
+
+
+
+
 @bp.route('/<int:network_id>/update_network', methods=('GET', 'POST'))
 @login_required
 def update_network(network_id):
@@ -86,7 +118,6 @@ def update_network(network_id):
 
     if (request.method == 'POST'):
         name = request.form['name']
-        #invitee = request.form['invitee']
         error = None
 
         if (not name):
@@ -96,11 +127,6 @@ def update_network(network_id):
             flash(error)
         else:
             db = get_db()
-            
-            #if (invitee):
-            #   user = db.execute(
-            #       'SELECT * FROM User WHERE name = ?', (invitee,)
-            #   )
 
             db.execute(
                 'UPDATE Network SET name = ?'
