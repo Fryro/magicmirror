@@ -5,20 +5,20 @@ DROP TABLE IF EXISTS UserNetworkAssociation;
 DROP TABLE IF EXISTS DeviceNetworkAssociation;
 
 CREATE TABLE User (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL
 );
 
 CREATE TABLE Device (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY,
     device_name TEXT NOT NULL,
     owner INTEGER NOT NULL,
     FOREIGN KEY (owner) REFERENCES User (id)
 );
 
 CREATE TABLE Network (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY, 
     name TEXT NOT NULL,
     owner INTEGER NOT NULL,
     owner_name TEXT NOT NULL,

@@ -1,4 +1,5 @@
 import functools
+from random import randint
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
@@ -33,6 +34,17 @@ def login_required(view):
     return(wrapped_view)
 
 
+def get_new_user_id(users):
+    taken_user_ids = []
+    for user in users:
+        taken_user_ids.append(user['id'])
+    while True:
+        new_user_id = randint(0, 999999999)
+        print(new_user_id)
+        if (new_user_id not in taken_user_ids):
+            break
+    return(new_user_id)
+
 
 @bp.route('/register', methods = ['GET', 'POST'])
 def register():
@@ -49,9 +61,13 @@ def register():
 
         if (error is None):
             try:
+                users = db.execute(
+                    'SELECT * FROM User'
+                ).fetchall()
+                new_user_id = get_new_user_id(users)
                 db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
+                    "INSERT INTO User (id, username, password) VALUES (?, ?, ?)",
+                    (new_user_id, username, generate_password_hash(password)),
                 )
                 db.commit()
             except db.IntegrityError:

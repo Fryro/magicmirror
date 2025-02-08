@@ -6,6 +6,8 @@ from werkzeug.exceptions import abort
 from magicmirror.auth import login_required
 from magicmirror.db import get_db
 
+from random import randint
+
 bp = Blueprint('console', __name__)
 
 
@@ -41,10 +43,15 @@ def create_network():
             flash(error)
         else:
             db = get_db()
+            networks = db.execute(
+                'SELECT * FROM Network'
+            ).fetchall()
+            new_network_id = get_new_network_id(networks)
+
             db.execute(
-                'INSERT INTO Network (name, owner_name, owner)'
-                ' VALUES (?, ?, ?)',
-                (name, g.user['username'], g.user['id'])
+                'INSERT INTO Network (id, name, owner_name, owner)'
+                ' VALUES (?, ?, ?, ?)',
+                (new_network_id, name, g.user['username'], g.user['id'])
             )
             network_id = db.execute(
                 'SELECT last_insert_rowid()'
@@ -86,6 +93,18 @@ def get_network_members(network_id):
     ).fetchall()
 
     return network_users
+
+def get_new_network_id(networks):
+    taken_network_ids = []
+    for network in networks:
+        taken_network_ids.append(network['id'])
+    while True:
+        new_network_id = randint(0, 999999999)
+        if (new_network_id not in taken_network_ids):
+            break
+    return new_network_id
+
+
 
 
 @bp.route('/<int:network_id>/manage_members_network', methods=('GET', 'POST'))

@@ -19,7 +19,13 @@
             <header>
                 <div>
                     <h1>{{ network_member['name'] }}</h1>
-                    <div class="about">{{ network_member['username'] }} (UserID: {{ network_member['user_id'] }})</div>
+                    <div class="about">{{ network_member['username'] }} 
+                        {% if (g.user['id'] == network_member['user_id']) %}
+                            (You)
+                        {% else %}
+                            (UserID: {{ network_member['user_id'] }})
+                        {% endif %}
+                    </div>
                 </div>
                 {% if g.user['id'] == network['owner'] %}
                     {% if g.user['id'] != network_member['user_id'] %}
