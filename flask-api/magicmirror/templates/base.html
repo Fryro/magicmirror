@@ -2,7 +2,7 @@
 <title>{% block title %}{% endblock %} - Magic Mirror</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <nav>
-  <h1>Magic Mirror</h1>
+    <h1><a href="{{ url_for('console.index') }}">Magic Mirror</a></h1>
   <ul>
     {% if g.user %}
     <li><span>Logged in as {{ g.user['username'] }} (UserID: {{  g.user['id'] }})</span>

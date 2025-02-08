@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block name %}Invite Users to "{{ network['name'] }}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <label for="invitee">Invite by UserID</label>
+        <input name="invitee" id="invitee"
+            value="{{ request.form['invitee'] }}">
+        <input type="submit" value="Invite">
+    </form>
+    <hr>
+
+    <h1> Users in "{{ network['name'] }}"</h1>
+    {% for network_member in network_members %}
+        <article class="post">
+            <header>
+                <div>
+                    <h1>{{ network_member['name'] }}</h1>
+                    <div class="about">{{ network_member['username'] }} (UserID: {{ network_member['user_id'] }})</div>
+                </div>
+                {% if g.user['id'] == network['owner'] %}
+                    {% if g.user['id'] != network_member['user_id'] %}
+                        <form action="{{ url_for('console.remove_user_from_network', network_id=network['id'], user_id=network_member['user_id']) }}" method="post">
+                            <input class="danger" type="submit" value="Remove Member" onclick="return confirm('Are you sure?');">
+                        </form>
+                    {% endif %}
+                {% endif %}
+            </header>
+        </article>
+        {% if not loop.last %}
+            <hr>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

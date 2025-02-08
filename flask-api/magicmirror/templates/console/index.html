@@ -16,7 +16,7 @@
           <div class="about">Owned by {{ network['owner_name'] }} (UserID: {{ network['owner'] }})</div>
         </div>
         {% if g.user['id'] == network['owner'] %}
-          <a class="action" href="{{ url_for('console.invite_to_network', network_id=network['id']) }}">Invite Users</a>
+          <a class="action" href="{{ url_for('console.manage_members_network', network_id=network['id']) }}">Manage Members</a>
         {% endif %}
         {% if g.user['id'] == network['owner'] %}
           <a class="action" href="{{ url_for('console.update_network', network_id=network['id']) }}">Edit</a>

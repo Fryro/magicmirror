@@ -23,8 +23,6 @@ def index():
     una = db.execute(
         'SELECT * FROM UserNetworkAssociation'
     ).fetchall()
-    print(networks)
-    print(una)
     return render_template('console/index.html', networks=networks)
 
 
@@ -79,17 +77,30 @@ def get_network(network_id, check_owner=True):
     return network
 
 
-@bp.route('/<int:network_id>/invite_to_network', methods=('GET', 'POST'))
+def get_network_members(network_id):
+    network_users = get_db().execute(
+        'SELECT *'
+        ' FROM UserNetworkAssociation una JOIN User u on una.user_id = u.id'
+        ' WHERE una.network_id = ?',
+        (network_id,)
+    ).fetchall()
+
+    return network_users
+
+
+@bp.route('/<int:network_id>/manage_members_network', methods=('GET', 'POST'))
 @login_required
-def invite_to_network(network_id):
+def manage_members_network(network_id):
     network = get_network(network_id)
+    network_members = get_network_members(network_id)
 
     if (request.method == 'POST'):
         invitee = request.form['invitee']
         error = None
 
         if (not invitee):
-            error = 'Invitee username is required.'
+            error = 'Invitee UserID is required.'
+
 
         if (error is not None):
             flash(error)
@@ -100,13 +111,31 @@ def invite_to_network(network_id):
                 'SELECT * FROM User WHERE id = ?', (invitee,)
             ).fetchone()
             
-            print(user)
-            # Invite the User, somehow...
-            # First, check if the user is already a member of the network.
+            if (user is None):
+                error = "No user found with that UserID!"
+                flash(error)
+            else:
+                # Invite the User, somehow...
+                # First, check if the user is already a member of the network.
+                user_is_a_member = False
+                for network_member in network_members:
+                    if (network_member['user_id'] == user['id']):
+                        user_is_a_member = True
+                        break
 
-            return redirect(url_for('console.index'))
+                if ((not user_is_a_member) and (g.user['id'] == network['owner'])):
+                    db.execute(
+                        'INSERT INTO UserNetworkAssociation (user_id, network_id)'
+                        ' VALUES (?, ?)',
+                        (user['id'], network_id)
+                    )
+                    db.commit() 
+                # Re-populate this, so the fresh display shows new members.
+                network_members = get_network_members(network_id)
 
-    return render_template('console/invite_to_network.html', network=network)
+        return render_template('console/manage_members_network.html', network=network, network_members=network_members)
+
+    return render_template('console/manage_members_network.html', network=network, network_members=network_members)
 
 
 
@@ -115,6 +144,7 @@ def invite_to_network(network_id):
 @login_required
 def update_network(network_id):
     network = get_network(network_id)
+    db = get_db()
 
     if (request.method == 'POST'):
         name = request.form['name']
@@ -135,16 +165,31 @@ def update_network(network_id):
             )
             db.commit()
             return redirect(url_for('console.index'))
-
+    
     return render_template('console/update_network.html', network=network)
+
+
+
+@bp.route('/<int:network_id>/<int:user_id>/remove_user_from_network', methods=('POST',))
+@login_required
+def remove_user_from_network(network_id, user_id):
+    network = get_network(network_id)
+    db = get_db()
+    if ((user_id != network['owner']) and (g.user['id'] == network['owner'])):
+        db.execute('DELETE FROM UserNetworkAssociation WHERE network_id = ? AND user_id = ?', (network_id, user_id,))
+        db.commit()
+    return redirect(url_for('console.manage_members_network', network_id=network_id))
 
 
 @bp.route('/<int:network_id>/delete_network', methods=('POST',))
 @login_required
 def delete_network(network_id):
-    get_network(network_id)
-    db = get_db()
-    db.execute('DELETE FROM UserNetworkAssociation WHERE network_id = ?', (network_id,))
-    db.execute('DELETE FROM Network WHERE id = ?', (network_id,))
-    db.commit()
+    network = get_network(network_id)
+    
+    if (g.user['id'] == network['owner']):
+        db = get_db()
+        db.execute('DELETE FROM UserNetworkAssociation WHERE network_id = ?', (network_id,))
+        db.execute('DELETE FROM Network WHERE id = ?', (network_id,))
+        db.commit()
+
     return redirect(url_for('console.index'))
