@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1> Users in "{{ network['name'] }}"</h1>
+    {% for network_member in network_members %}
+        <article class="post">
+            <header>
+                <div>
+                    <h1>{{ network_member['username'] }}</h1>
+                    <div class="about">{{ network_member['username'] }} 
+                        {% if (g.user['id'] == network_member['user_id']) %}
+                            (You)
+                        {% else %}
+                            (UserID: {{ network_member['user_id'] }})
+                        {% endif %}
+                    </div>
+                </div>
+            </header>
+        </article>
+        {% if not loop.last %}
+            <hr>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block contentdevices %}
+    <h1> Devices in "{{ network['name'] }}"</h1>
+    {% for network_device in network_devices %}
+        <article class="post">
+            <header>
+                <div>
+                    <h1>{{ network_device['name'] }}</h1>
+                    <div class="about">{{ network_device['name'] }} (DeviceID: {{ network_device['device_id'] }})</div>
+                </div>
+            </header>
+        </article>
+        {% if not loop.last %}
+            <hr>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

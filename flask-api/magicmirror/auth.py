@@ -2,7 +2,7 @@ import functools
 from random import randint
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -46,6 +46,23 @@ def get_new_user_id(users):
     return(new_user_id)
 
 
+def get_new_device_id():
+    db = get_db()
+    devices = db.execute(
+        'SELECT *'
+        ' FROM Device'
+    ).fetchall()
+    taken_device_ids = []
+    for device in devices:
+        taken_device_ids.append(device['id'])
+    while True:
+        new_device_id = randint(0, 999999999)
+        if (new_device_id not in taken_device_ids):
+            break
+    return new_device_id
+
+
+
 @bp.route('/register', methods = ['GET', 'POST'])
 def register():
     if (request.method == 'POST'):
@@ -56,7 +73,7 @@ def register():
 
         if (not username):
             error = 'Username is required!'
-        elif (not password):
+        if (not password):
             error = 'Password is required!'
 
         if (error is None):
@@ -105,6 +122,62 @@ def login():
 
         flash(error)
     return(render_template('auth/login.html'))
+
+
+
+@bp.route('/device_login', methods = ('POST',))
+def device_login():
+    content = request.get_json()
+    if (not content):
+        return("Bad Request: No JSON in POST.", 400)
+    
+    try:
+        username = content['username']
+    except:
+        return("Bad Request: element 'username' not present in JSON.", 400)
+    
+    try:
+        password = content['password']
+    except:
+        return("Bad Request: element 'password' not present in JSON.", 400)
+    
+    try:
+        device_name = content['device_name']
+    except:
+        return("400: Bad Request, missing 'device_name' element in JSON.", 400)
+
+    try:
+        device_auth = content['device_pubkey']
+    except:
+        return("400: Bad Request, missing 'device_pubkey' element in JSON.", 400)
+   
+
+
+    db = get_db()     
+    user = db.execute(
+        'SELECT * FROM User WHERE username = ?',
+        (username,)
+    ).fetchone()
+
+    if (user is None):
+        return("Bad Request: Incorrect username!", 400)
+    elif not (check_password_hash(user['password'], password)):
+        return("Bad Request: Incorrect password!", 400)
+    else:
+        new_device_id = get_new_device_id()
+        db.execute(
+            'INSERT INTO Device (id, name, owner, owner_name, pubkey)'
+            ' VALUES (?, ?, ?, ?, ?)',
+            (new_device_id, device_name, user['id'], user['username'], device_auth) 
+        )
+        db.execute(
+            'INSERT INTO DeviceUserAssociation (user_id, device_id)'
+            ' VALUES (?, ?)',
+            (user['id'], new_device_id)
+        )
+        db.commit()
+        return jsonify(status="Success", device_id=new_device_id)
+
 
 
 

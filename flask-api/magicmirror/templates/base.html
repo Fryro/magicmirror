@@ -21,4 +21,8 @@
     <div class="flash">{{ message }}</div>
   {% endfor %}
   {% block content %}{% endblock %}
+  <header>
+      {% block headerdevices %}{% endblock %}
+  </header>
+  {% block contentdevices %}{% endblock %}
 </section>

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{% block name %}Add Devices to "{{ network['name'] }}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <label for="new_device_id">Add Device via DeviceID</label>
+        <input name="new_device_id" id="new_device_id"
+            value="{{ request.form['new_device_id'] }}">
+        <input type="submit" value="Add Device">
+    </form>
+    <hr>
+
+    <h1> Devices in "{{ network['name'] }}"</h1>
+    {% for network_device in network_devices %}
+        <article class="post">
+            <header>
+                <div>
+                    <h1>{{ network_device['name'] }}</h1>
+                    <div class="about">{{ network_device['name'] }} (DeviceID: {{ network_device['device_id'] }})</div>
+                </div>
+                {% if g.user['id'] == network['owner'] %}
+                    <form action="{{ url_for('console.remove_device_from_network', network_id=network['id'], device_id=network_device['device_id']) }}" method="post">
+                        <input class="danger" type="submit" value="Remove Device" onclick="return confirm('Are you sure?');">
+                    </form>
+                {% endif %}
+            </header>
+        </article>
+        {% if not loop.last %}
+            <hr>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

@@ -22,10 +22,11 @@
             </div>       
         </div>
         {% if g.user['id'] == network['owner'] %}
+          <a class="action" href="{{ url_for('console.manage_devices_network', network_id=network['id']) }}">Manage Devices</a>
           <a class="action" href="{{ url_for('console.manage_members_network', network_id=network['id']) }}">Manage Members</a>
-        {% endif %}
-        {% if g.user['id'] == network['owner'] %}
           <a class="action" href="{{ url_for('console.update_network', network_id=network['id']) }}">Edit</a>
+        {% else %}
+          <a class="action" href="{{ url_for('console.view_network', network_id=network['id']) }}">View</a>
         {% endif %}
       </header>
     </article>
@@ -33,4 +34,35 @@
       <hr>
     {% endif %}
   {% endfor %}
+{% endblock %}
+
+
+
+{% block headerdevices %}
+  <h1>{% block titledevices %}Devices{% endblock %}</h1>
+{% endblock %}
+
+{% block contentdevices %}
+  {% for device in devices %}
+      <article class="post">
+          <header>
+            <div>
+                <h1>{{ device['name'] }} (DeviceID: {{ device['id'] }})</h1>
+                <div class="about">Owned By "{{ device['owner_name'] }}"
+                    {% if (g.user['id'] == device['owner']) %}
+                        (You)
+                    {% else %}
+                        (UserID: {{ device['owner'] }})
+                    {% endif %}
+                </div>       
+            </div>
+            {% if g.user['id'] == device['owner'] %}
+              <a class="action" href="{{ url_for('console.update_device', device_id=device['id']) }}">Edit</a>
+            {% endif %}
+          </header>
+        </article>
+        {% if not loop.last %}
+          <hr>
+        {% endif %}
+    {% endfor %}
 {% endblock %}
