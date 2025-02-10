@@ -8,6 +8,10 @@ Things to do before this functions:
 
 
 TODO:
+0? Change from using session variables for continued access to JWTs.
+    # Then I can set expiry conditions!
+    # Not auto-authenticate on future requests!
+    # Etc! Plus it's new and fancy and good learning.
 1. Make endpoints for devices. Time to actually handle the parts where:
     # # # SERVER-SIDE RESPONSIBILITIES # # #
     # Devices register with the server via user login on the device (Done)
