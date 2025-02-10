@@ -6,13 +6,18 @@
 
 {% block content %}
     <form method="post">
-        <label for="new_device_id">Add Device via DeviceID</label>
-        <input name="new_device_id" id="new_device_id"
+        <label for="new_device_id">Add Device</label>
+        <input name="new_device_id" id="new_device_id" list="non_network_devices" placeholder="Autofill or Paste DeviceID"
             value="{{ request.form['new_device_id'] }}">
+        <datalist id="non_network_devices">
+            {% for device in non_network_user_devices %}
+            <option value="{{ device['device_id'] }}" label="{{ device['name'] }} (DeviceID: {{ device['device_id'] }})"/>
+            {% endfor %}
+        </datalist>
         <input type="submit" value="Add Device">
     </form>
     <hr>
-
+    
     <h1> Devices in "{{ network['name'] }}"</h1>
     {% for network_device in network_devices %}
         <article class="post">

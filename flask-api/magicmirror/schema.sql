@@ -16,7 +16,6 @@ CREATE TABLE Device (
     name TEXT NOT NULL,
     owner INTEGER NOT NULL,
     owner_name TEXT NOT NULL,
-    pubkey TEXT NOT NULL,
     FOREIGN KEY (owner) REFERENCES User (id)
 );
 

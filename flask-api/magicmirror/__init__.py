@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, send_from_directory
 
 def create_app(test_config = None):
     app = Flask(__name__, instance_relative_config = True)
@@ -20,10 +20,11 @@ def create_app(test_config = None):
         pass
     
     # Testing Route
-    @app.route('/hello')
-    def hello():
-        return("Hello, world!")
-    
+    @app.route('/favicon.ico')
+    def favicon():
+        return send_from_directory(os.path.join(app.root_path, 'static'),
+           'favicon.ico') 
+
     # Database
     from . import db
     db.init_app(app)

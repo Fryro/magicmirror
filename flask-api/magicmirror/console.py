@@ -135,6 +135,20 @@ def get_network_devices(network_id):
     ).fetchall()
     return network_devices
 
+def get_non_network_user_devices(user_id):
+    non_network_user_devices = get_db().execute(
+        'SELECT *'
+        ' FROM Device d'
+        ' JOIN DeviceUserAssociation dua ON dua.device_id = d.id AND dua.user_id = ?'
+        ' LEFT JOIN DeviceNetworkAssociation dna ON dna.device_id = d.id'
+        ' WHERE dna.network_id is null',
+        (user_id,)
+    ).fetchall()
+    for d in non_network_user_devices:
+        print(d['name'])
+    return non_network_user_devices
+
+
 
 
 @bp.route('/<int:network_id>/manage_devices_network', methods=('GET', 'POST'))
@@ -142,8 +156,7 @@ def get_network_devices(network_id):
 def manage_devices_network(network_id):
     network = get_network(network_id)
     network_devices = get_network_devices(network_id)
-    for nd in network_devices:
-        print(nd)
+    non_network_user_devices = get_non_network_user_devices(g.user['id'])
 
     if (request.method == 'POST'):
         new_device_id = request.form['new_device_id']
@@ -179,10 +192,11 @@ def manage_devices_network(network_id):
                     db.commit() 
                 # Re-populate this, so the display shows newly added devices.
                 network_devices = get_network_devices(network_id)
+                non_network_user_devices = get_non_network_user_devices(g.user['id'])
 
-        return render_template('console/manage_devices_network.html', network=network, network_devices=network_devices)
+        return render_template('console/manage_devices_network.html', network=network, network_devices=network_devices, non_network_user_devices=non_network_user_devices)
 
-    return render_template('console/manage_devices_network.html', network=network, network_devices=network_devices)
+    return render_template('console/manage_devices_network.html', network=network, network_devices=network_devices, non_network_user_devices=non_network_user_devices)
     
 
 

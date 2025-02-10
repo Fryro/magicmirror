@@ -13,7 +13,7 @@
       <header>
         <div>
           <h1>{{ network['name'] }}</h1>
-            <div class="about">Owned By "{{ network['owner_name'] }}"
+            <div class="about">Owned by "{{ network['owner_name'] }}"
                 {% if (g.user['id'] == network['owner']) %}
                     (You)
                 {% else %}
@@ -48,7 +48,7 @@
           <header>
             <div>
                 <h1>{{ device['name'] }} (DeviceID: {{ device['id'] }})</h1>
-                <div class="about">Owned By "{{ device['owner_name'] }}"
+                <div class="about">Owned by "{{ device['owner_name'] }}"
                     {% if (g.user['id'] == device['owner']) %}
                         (You)
                     {% else %}

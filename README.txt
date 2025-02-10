@@ -1,16 +1,16 @@
+Things to do before this functions:
+1. Create a CA. I did this using XCA. Then create a keypair + cert.
+2. Create a serverside cert and key, signed by your CA.
+3. Place the service cert + key in ./flask-api/secrets. Verify the .gitignore.
+4. Modify the ./flask-api/run.sh script to use your cert and key.
+5. Should be off to the races!
+6. For tailscale users, if you're testing locally, make sure to use `tailscale serve 5000` or equivalent functionality so you don't have to worry about localhost/ssl issues.
+
+
+TODO:
 1. Integrate Email/SMS or build a native way to recieve and accept invitations to networks.
 2. Basic device stuff is complete.
-    # Devices generate a priv/pub asym keypair upon fabrication (when I make it and run the software lol).
-    # User logs into device with user/pass. This will cause the device to contact auth server.
-    #   If valid credentials, then auth server registers the device + device/user association in database.
-    #   Request then returns a JSON containing the Device's provisioned ID.
-    #   This is important, make sure it works!
-    #
-    #   TODO: Write device software
-    #   So far, expecations for the device software are:
-    #   Store an asym keypair locally.
-    #   Have a login page, required before anything else is accessed (besides maybe device name).
-    #   After logging in, store provisioned device ID somewhere locally. This is the device's identifier, and the key is authentication.
-3. Consider adding "admin" groups, instead of strictly requiring owners to do things.
-    # Easy enough; add an association table for admins. Columns: network_id, user_id. Both foreign keys.
-    # Could just be an extension of existing association table for users/networks. Just add a 'priv' field, 0-1-2 = member, admin, owner.
+    I've decided that logging in as a user is enough for now.
+    This is mostly coerced from the fact that mTCL is not fully supported in Flask.
+    The server is authenticated using TCP and the CA cert. The device is trusted
+        because it has login credentials.

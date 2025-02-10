@@ -7,7 +7,7 @@
 {% block content %}
     <form method="post">
         <label for="invitee">Invite by UserID</label>
-        <input name="invitee" id="invitee"
+        <input name="invitee" id="invitee" placeholder="Enter or Paste UserID"
             value="{{ request.form['invitee'] }}">
         <input type="submit" value="Invite">
     </form>

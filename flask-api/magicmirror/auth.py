@@ -146,12 +146,6 @@ def device_login():
     except:
         return("400: Bad Request, missing 'device_name' element in JSON.", 400)
 
-    try:
-        device_auth = content['device_pubkey']
-    except:
-        return("400: Bad Request, missing 'device_pubkey' element in JSON.", 400)
-   
-
 
     db = get_db()     
     user = db.execute(
@@ -166,9 +160,9 @@ def device_login():
     else:
         new_device_id = get_new_device_id()
         db.execute(
-            'INSERT INTO Device (id, name, owner, owner_name, pubkey)'
-            ' VALUES (?, ?, ?, ?, ?)',
-            (new_device_id, device_name, user['id'], user['username'], device_auth) 
+            'INSERT INTO Device (id, name, owner, owner_name)'
+            ' VALUES (?, ?, ?, ?)',
+            (new_device_id, device_name, user['id'], user['username']) 
         )
         db.execute(
             'INSERT INTO DeviceUserAssociation (user_id, device_id)'
